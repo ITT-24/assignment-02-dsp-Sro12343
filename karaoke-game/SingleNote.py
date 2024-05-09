@@ -11,25 +11,24 @@ class SingleNote():
         self.normal_color = (100,100,100)
         self.hit_color = (100,255,100)
         self.was_played = False
-        self.is_hit = False
         self.y_scale = y_scale
         self.message = message
         self.shape = None 
         self.is_silent= is_silent
          
         
-    def get_y_position(self):
-        return self.y_position 
+    #def get_y_position(self):
+    #    return self.y_position 
 
-    def getLength(self):
-        return self.length
+    #def getLength(self):
+    #    return self.length
     
     def playNote(self):
         self.was_played = True
         return self.message   
     
-    def checkIfPlayed(self):
-        return self.was_played
+    #def checkIfPlayed(self):
+    #    return self.was_played
     
     def setIsHit(self, is_hit):
         if self.shape != None: 
@@ -38,11 +37,11 @@ class SingleNote():
             else:
                 self.shape.color = self.normal_color
        
-    def getIsHit(self):
-       return self.is_hit
+    #def getIsHit(self):
+    #   return self.is_hit
     
-    def checkCollision(self):
-        pass        
+    #def checkCollision(self):
+    #    pass        
             
     def draw(self):
         if self.shape == None: 

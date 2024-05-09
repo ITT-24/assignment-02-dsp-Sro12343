@@ -93,6 +93,7 @@ def update(dt):
         game_inst.update(frequency,dt)
         
         if game_inst.checkIfGameFinished():
+            menu_inst.updateScore(game_inst.counter)
             game_state = 0
         
     

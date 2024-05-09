@@ -26,7 +26,7 @@ class GameLogic():
         
         self.Point_Lable = pyglet.text.Label(text="Points: ", x=window_size_x/2-200, y=600,color=(100,100,100,255))        
         self.Point_Counter = pyglet.text.Label(text="-", x=window_size_x/2, y=600,color=(100,100,100,255))
-
+        self.music_offset = 40 
         pass
     
     def start(self,song):
@@ -41,14 +41,17 @@ class GameLogic():
         def play():
             self.gameStarted = True
             for msg in MidiFile(self.song).play():
-                is_silen = False
-                if msg.velocity != 0:
-                    is_silen = True
+                if msg.type == "control_change" or msg.type == "program_change":
+                    pass#self.output_port.send(msg)
+                else:
+                    is_silent = False 
+                    if msg.type == "note_off" or msg.velocity == 0:
+                        is_silent = True
+                        
+                    length = msg.time * self.speed
+                    y_position = (msg.note %12) * 600/12 -20 #*self.y_scale -800
                     
-                length = msg.time * self.speed
-                y_position = (msg.note %12) * 600/12 -20 #*self.y_scale -800
-                
-                self.note_list.append(SingleNote(length,y_position,self.window_size_x,40,self.y_scale,msg,is_silen))
+                    self.note_list.append(SingleNote(length,y_position,self.window_size_x,40,self.y_scale,msg,is_silent))
                       
                     
         self.song_thread = threading.Thread(target=play)
@@ -66,25 +69,28 @@ class GameLogic():
     def checkCollision(self):
         #check along x achsys
         for n in self.note_list:
-            #n.checkCollision(self.player.x, self.player.y)            
-            if n.x  <= self.player_starting_x and n.x + n.length >= self.player_starting_x:
-                #Check along y achsys
-                if n.y_position <= self.player.y and self.player.y + n.note_size_y >= self.player.y:
-                    #note is hit
-                    n.setIsHit(True)
-                    self.counter += 1
-                    continue
-            #note is not hit    
-            n.setIsHit(False)
+            if n.is_silent == False:
+                #n.checkCollision(self.player.x, self.player.y)            
+                if n.x  <= self.player_starting_x and n.x + n.length >= self.player_starting_x:
+                    #Check along y achsys
+                    if self.player.y + self.player.height >= n.y_position and n.y_position + n.note_size_y >= self.player.y:
+                    #if n.y_position <= self.player.y and n.y_position + n.note_size_y >= self.player.y:
+                        #note is hit
+                        print()
+                        n.setIsHit(True)
+                        self.counter += 1
+                        continue
+                #note is not hit    
+                n.setIsHit(False)
      
-        
+            
         
     def update(self,frequency,dt):
-        self.player.update_hight(frequency)
+        self.player.update_height(frequency)
         for n in self.note_list:
             
             n.x -=self.speed *dt
-            if n.x<=0 and n.was_played == False:
+            if n.x<=self.player.x +self.player.width + self.music_offset and n.was_played == False:
                 msg = n.playNote()
                 self.output_port.send(msg)
             #n.update()     

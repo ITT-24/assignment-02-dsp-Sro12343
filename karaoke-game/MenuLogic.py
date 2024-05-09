@@ -26,7 +26,9 @@ class MenuLogic:
         
         self.songPlayer = songPlayer(self.music_folder,self.song_list[0],self.outputPort)
         self.updateText()
-    
+        
+        self.lastScore = 0
+        self.last_score_counter = pyglet.text.Label(text="-", x=window_size_x/2, y=500,color=(100,100,100,255), anchor_x='center',anchor_y='center')
     
     
     def fillList(self, folder):
@@ -72,6 +74,10 @@ class MenuLogic:
         self.songPlayer = songPlayer(self.music_folder,self.song_list[self.song_index],self.outputPort)
         self.songPlayer.playSong()
         
+    def updateScore(self,score):
+        self.lastScore = score
+        self.last_score_counter.text = "Last Score: " + str(self.lastScore)
+    
     def startGame(self):
         #Return current Song
         self.songPlayer.stopPlay()
@@ -83,6 +89,8 @@ class MenuLogic:
         self.song_previous.draw()
         self.song_selected.draw()
         self.song_next.draw()
+        if self.lastScore !=0:
+            self.last_score_counter.draw()
 
 
 
