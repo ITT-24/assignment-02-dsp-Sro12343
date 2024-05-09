@@ -8,7 +8,7 @@ class DirCalculator():
         self.kernel_sigma = 3
         self.kernel = signal.windows.gaussian(self.kernel_size, self.kernel_sigma)
         self.past_frequencies = []
-        self.ascention_threathhold = 10
+        self.ascention_threathhold = 50
         self.frequency_compare_num = 6
         self.deleteFrequenciesTime = 1.0
         self.deletionCountDown = self.deleteFrequenciesTime

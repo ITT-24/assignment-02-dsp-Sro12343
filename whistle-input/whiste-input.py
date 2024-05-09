@@ -28,11 +28,6 @@ input_calc = DirCalculator(RATE)
 #setup output device
 output = output_device()
 
-#set pyglet window
-WINDOW_SIZE_X = 768
-WINDOW_SIZE_Y = 704
-window = pyglet.window.Window(WINDOW_SIZE_X, WINDOW_SIZE_Y)
-input_vis = inputVisualizer()
 
 
 
@@ -57,6 +52,13 @@ stream = p.open(format=FORMAT,
                 input_device_index=input_device)
 
        
+
+
+#set pyglet window
+WINDOW_SIZE_X = 768
+WINDOW_SIZE_Y = 704
+window = pyglet.window.Window(WINDOW_SIZE_X, WINDOW_SIZE_Y)
+input_vis = inputVisualizer()
 
 @window.event
 def on_draw():

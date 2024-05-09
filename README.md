@@ -14,7 +14,9 @@ With the up and down arrows, the players can switch between songs and start the 
 
 During the game, players sing/whistle the fitting notes. To the song. There are only 12 different notes in the input; different octaves are counted as the same note. As long as the notes are touched by the player/box, they become green and the player gains points. After the song returns to the menu and the achieved score is shown(in the Tetris song this takes some time, which has to do with the midi file, as the game waits for the midi file to be done),
 
+
 The Tetris midi came from (https://bitmidi.com/tetris-tetris-main-theme-mid)
+The Images were made with stable diffusion 1.5
 
 List of all imports:
 import pyaudio
