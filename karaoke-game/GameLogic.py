@@ -1,115 +1,128 @@
 from SingleNote import SingleNote
-
 import pyglet
 import threading
 from mido import MidiFile
 from Player import Player
 
 class GameLogic():
-    def __init__(self,window_size_x,window_size_y,output_port,speed):
-        
+    def __init__(self,window_size_x,window_size_y,output_port,speed): 
+        # Initialize instance variables   
         self.note_list = []
-        self.playbackFinished = False 
-        self.gameStarted = False
+        self.playback_finished = False 
+        self.game_started = False
+        self.force_stop_song = False
         self.window_size_x = window_size_x
         self.window_size_y = window_size_y
         self.output_port = output_port
         self.song = None
-        
-        self.note_length_factor = speed
-        self.y_scale = 20
         self.speed = speed
         self.player_starting_x = 100
-        
-        self.player = Player(self.player_starting_x, 100,40,self.y_scale)
+        self.player_starting_y = 100
+        self.player_size= 40
+        self.note_size_y = 40
+        self.step_size = (window_size_y-100)/12
+        self.player = Player(self.player_starting_x, self.player_starting_y,self.player_size,self.step_size)
         self.counter = 0
-        
-        self.Point_Lable = pyglet.text.Label(text="Points: ", x=window_size_x/2-200, y=600,color=(100,100,100,255))        
-        self.Point_Counter = pyglet.text.Label(text="-", x=window_size_x/2, y=600,color=(100,100,100,255))
+        self.point_lable = pyglet.text.Label(text="Points: ", x=window_size_x/2-200, y=600,color=(100,100,100,255))        
+        self.point_counter = pyglet.text.Label(text="-", x=window_size_x/2, y=600,color=(100,100,100,255))
         self.music_offset = 40 
-        pass
+       
     
     def start(self,song):
+        #Starts the game with the given song.
         self.counter = 0
-        self.spawnNotes(song)
+        self.spawn_notes(song)
         pass
-    
-
-    
-    def spawnNotes(self,song):
+        
+    def spawn_notes(self,song):
+        #Spawns notes for the given song.
         self.song = song
         def play():
-            self.gameStarted = True
+            #Plays the MIDI file and spawns notes accordingly.
+            self.game_started = True
             for msg in MidiFile(self.song).play():
-                if msg.type == "control_change" or msg.type == "program_change":
-                    pass#self.output_port.send(msg)
-                else:
+                #check if force stop song.
+                if self.force_stop_song == True:
+                    break
+                #Skip control_change and program_change midi_mesages
+                if msg.type != "control_change" and msg.type != "program_change":
+                    
+                    #if midi note is of type note_off or has a velocity of zero it can not be interacted with and is invisable
                     is_silent = False 
                     if msg.type == "note_off" or msg.velocity == 0:
                         is_silent = True
-                        
+                    #set note length
                     length = msg.time * self.speed
-                    y_position = (msg.note %12) * 600/12 -20 #*self.y_scale -800
-                    
-                    self.note_list.append(SingleNote(length,y_position,self.window_size_x,40,self.y_scale,msg,is_silent))
-                      
-                    
+                    #set note y position according to pitch but not octave 
+                    y_position = (msg.note %12) * self.step_size #-20
+                    #add note
+                    self.note_list.append(SingleNote(length,y_position,self.window_size_x,self.note_size_y,msg,is_silent))                   
+        #spawn the notes in a thread, so it dose not stop the rest of the program
         self.song_thread = threading.Thread(target=play)
         self.song_thread.start()
     
-    def checkIfGameFinished(self):
-        
-        
-        if self.gameStarted ==True and not self.song_thread.is_alive() and len(self.note_list) == 0:
-            print(str(self.gameStarted) + " " + str(self.song_thread.is_alive()) + " "+ str(len(self.note_list)))
-            
+    def check_if_game_finished(self):    
+        #Checks if the game has finished.    
+        if self.game_started ==True and not self.song_thread.is_alive() and len(self.note_list) == 0:
+            print(str(self.game_started) + " " + str(self.song_thread.is_alive()) + " "+ str(len(self.note_list)))
             return True
         return False
-    
-    def checkCollision(self):
-        #check along x achsys
-        for n in self.note_list:
-            if n.is_silent == False:
-                #n.checkCollision(self.player.x, self.player.y)            
-                if n.x  <= self.player_starting_x and n.x + n.length >= self.player_starting_x:
-                    #Check along y achsys
-                    if self.player.y + self.player.height >= n.y_position and n.y_position + n.note_size_y >= self.player.y:
-                    #if n.y_position <= self.player.y and n.y_position + n.note_size_y >= self.player.y:
-                        #note is hit
-                        print()
-                        n.setIsHit(True)
-                        self.counter += 1
-                        continue
-                #note is not hit    
-                n.setIsHit(False)
-     
-            
-        
+
     def update(self,frequency,dt):
-        self.player.update_height(frequency)
+        #update y position along recognized frequency.
+        self.player.update_y(frequency)
+        
+        #for eacj mpte
         for n in self.note_list:
-            
+            #move note to left
             n.x -=self.speed *dt
-            if n.x<=self.player.x +self.player.width + self.music_offset and n.was_played == False:
-                msg = n.playNote()
-                self.output_port.send(msg)
-            #n.update()     
+            
+            #Play note if it has reached player and was not already played.
+            #The offset means the music plays a bit befor the player needs to hit the notes, so the player knows what to sing.
+            if n.x<=self.player.x +self.player.size_x + self.music_offset and n.was_played == False:
+                msg = n.play_note()
+                self.output_port.send(msg) 
+                
+            #check if note should despawn
             if n.x<=-n.length:
                 if n.shape != None:
                     n.shape.delete()
                 self.note_list.remove(n)
-        self.checkCollision()
-        self.Point_Counter.text = str(self.counter)
+        #check collision betwen player and notes
+        self.check_collision()
+        #update point counter
+        self.point_counter.text = str(self.counter)
+
+    
+    def check_collision(self):        
+        for n in self.note_list:
+        #for each note
+            if n.is_silent == False:
+            #only check further if  note is not silent    
+                if n.x  <= self.player_starting_x and \
+                n.x + n.length >= self.player_starting_x:
+                #Check if note reached same x achsys as player
+                    if self.player.y + self.player.size_y >= n.y and\
+                    n.y + n.note_size_y >= self.player.y:
+                    #check if note and player intersect in height.
+                        #note is hit
+                        n.set_color(True)
+                        #increase point counter
+                        self.counter += 1
+                        #skip to next note
+                        continue
+                #note is not hit    
+                n.set_color(False)
+             
 
     def draw(self):
+        #draw visible notes
         for n in self.note_list:
             if n.is_silent == False:
-                n.draw()
-                
+                n.draw()   
+        #draw player                
         self.player.draw()
-        self.Point_Counter.draw()
-        self.Point_Lable.draw()
-        pass
-    
-    
-    
+        #draw point counter
+        self.point_counter.draw()
+        #draw lable of point counter
+        self.point_lable.draw()

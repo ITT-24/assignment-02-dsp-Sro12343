@@ -1,25 +1,24 @@
 from pyglet import shapes
 class Player():
-    def __init__(self,starting_x,starting_y,size,y_scale):
+    def __init__(self,starting_x,starting_y,size,step_size):
         
         #Initialize a Player object.
         self.x = starting_x
         self.y = starting_y
-        self.y_scale = y_scale
-        self.width = size
-        self.height = size 
-        self.shape = shapes.Rectangle(x=self.x,y=self.y,width=self.width,height=self.height,color=(225,225,225,225))
-        pass
+        self.step_size = step_size
+        self.size_x = size
+        self.size_y = size 
+        self.shape = shapes.Rectangle(x=self.x,y=self.y,width=self.size_x,height=self.size_y,color=(225,225,225,225))
     
-    def update_height(self,height):
-        #Update the player's height.
-        #height (float or None): The new height of the player.
-        
-        if height != None:
-            self.y =height * 600/12 - (self.width/2)
-            self.shape.y = self.y
+    def update_y(self,frequency):
+        #Update the player's y
+        if frequency != None:
+            #set player y to sung frequency
+            self.y =frequency * self.step_size
         else:
-            self.y = 1000
-        pass
+            #set player outside of screen
+            self.y =  self.step_size *20
+        self.shape.y = self.y
+
     def draw(self):
         self.shape.draw()

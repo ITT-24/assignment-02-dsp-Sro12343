@@ -5,6 +5,7 @@ import threading
 
 
 class songPlayer():
+    # Initialize instance variables 
     def __init__(self,musicFolder,songName,output_port):
         self.stopSong = False
         self.songName = songName + ".mid"
@@ -13,7 +14,7 @@ class songPlayer():
         self.song_thread = None
         pass
     
-    def playSong(self):
+    def play_song(self):
         #Async PLay of midi file. 
         def play():
             for msg in MidiFile(self.musicFile).play():
@@ -28,7 +29,7 @@ class songPlayer():
                 self.output_port.send(msg)
         self.song_thread = threading.Thread(target=play)
         self.song_thread.start()
-    def stopPlay(self):
+    def stop_play(self):
         self.stopSong = True
         
         #Test->

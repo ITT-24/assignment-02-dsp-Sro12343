@@ -5,12 +5,12 @@ class output_device():
         self.keyboard = Controller()
         pass
         
-    def scrole(self,direction):
-        if direction == "scrole_up":
+    def scroll(self,direction):
+        if direction == "scroll_up":
             self.keyboard.press(Key.up)
             self.keyboard.release(Key.up)        
             pass
-        if direction == "scrole_down":
+        if direction == "scroll_down":
             self.keyboard.press(Key.down)
             self.keyboard.release(Key.down)   
             pass
