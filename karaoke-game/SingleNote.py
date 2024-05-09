@@ -8,8 +8,8 @@ class SingleNote():
         self.note_size_y = note_size_y
         self.starting_x = starting_x
         self.x = self.starting_x
-        self.normal_color = (100,100,100)
-        self.hit_color = (100,255,100)
+        self.normal_color = (75,75,75)
+        self.hit_color = (200,200,200)
         self.was_played = False
         self.message = message
         self.shape = None 

@@ -18,7 +18,6 @@ class MenuLogic:
         self.music_folder = os.path.join(self.current_dir,'music')
         
         self.title_image_p = os.path.join(self.current_dir,'images','title.jpeg')
-        #print(self.title_image_p)
         self.title_image = pyglet.image.load(self.title_image_p)
         self.background_image = pyglet.sprite.Sprite(img=self.title_image)
         

@@ -1,8 +1,10 @@
 from SingleNote import SingleNote
 import pyglet
+from pyglet import shapes
 import threading
 from mido import MidiFile
 from Player import Player
+import os.path
 
 class GameLogic():
     def __init__(self,window_size_x,window_size_y,output_port,speed): 
@@ -23,10 +25,21 @@ class GameLogic():
         self.step_size = (window_size_y-100)/12
         self.player = Player(self.player_starting_x, self.player_starting_y,self.player_size,self.step_size)
         self.counter = 0
-        self.point_lable = pyglet.text.Label(text="Points: ", x=window_size_x/2-200, y=600,color=(100,100,100,255))        
-        self.point_counter = pyglet.text.Label(text="-", x=window_size_x/2, y=600,color=(100,100,100,255))
+        #self.point_lable = pyglet.text.Label(text="Points: ", x=window_size_x/2-200, y=600,color=(50,50,50,255))        
+        self.point_counter = pyglet.text.Label(text="-", x=10, y=650,color=(50,50,50,255))
         self.music_offset = 40 
        
+        self.current_dir = os.path.dirname(__file__)
+        self.title_image_p = os.path.join(self.current_dir,'images','background.jpeg')
+        self.title_image = pyglet.image.load(self.title_image_p)
+        self.background_image = pyglet.sprite.Sprite(img=self.title_image)
+
+        self.lines = []
+        self.fill_lines()
+    
+    def fill_lines(self):
+        for i in range(12):
+            self.lines.append(shapes.Rectangle(x=0,y=self.step_size*i+(self.note_size_y/2),width=900,height=2,color=(50,50,50,155))) 
     
     def start(self,song):
         #Starts the game with the given song.
@@ -91,7 +104,7 @@ class GameLogic():
         #check collision betwen player and notes
         self.check_collision()
         #update point counter
-        self.point_counter.text = str(self.counter)
+        self.point_counter.text = "Points: "+str(self.counter)
 
     
     def check_collision(self):        
@@ -116,6 +129,13 @@ class GameLogic():
              
 
     def draw(self):
+        
+        #draw background image
+        self.background_image.draw()
+        
+        for l in self.lines:
+            l.draw()
+        
         #draw visible notes
         for n in self.note_list:
             if n.is_silent == False:
@@ -124,5 +144,3 @@ class GameLogic():
         self.player.draw()
         #draw point counter
         self.point_counter.draw()
-        #draw lable of point counter
-        self.point_lable.draw()
