@@ -16,17 +16,26 @@ class MenuLogic:
         self.output_port = output_port
         self.current_dir = os.path.dirname(__file__)
         self.music_folder = os.path.join(self.current_dir,'music')
+        
+        self.title_image_p = os.path.join(self.current_dir,'images','title.jpeg')
+        #print(self.title_image_p)
+        self.title_image = pyglet.image.load(self.title_image_p)
+        self.background_image = pyglet.sprite.Sprite(img=self.title_image)
+        
         self.fill_list(self.music_folder)
         self.max_song_index = len(self.song_list) -1
-        self.song_previous = pyglet.text.Label(text="-", x=window_size_x/2, y=150,color=(100,100,100,255), anchor_x='center',anchor_y='center')
-        self.song_selected = pyglet.text.Label(text="-", x=window_size_x/2, y=100,color=(255,255,255,255), anchor_x='center',anchor_y='center')
-        self.song_next = pyglet.text.Label(text="-", x=window_size_x/2, y=50,color=(100,100,100,255), anchor_x='center',anchor_y='center')
+        self.song_previous = pyglet.text.Label(text="-", x=window_size_x/2, y=150,color=(100,100,100,155), anchor_x='center',anchor_y='center')
+        self.song_selected = pyglet.text.Label(text="-", x=window_size_x/2, y=100,color=(50,50,50,255), anchor_x='center',anchor_y='center')
+        self.song_next = pyglet.text.Label(text="-", x=window_size_x/2, y=50,color=(100,100,100,155), anchor_x='center',anchor_y='center')
+        
+        self.Title = pyglet.text.Label(text="Midi Sing", x=window_size_x/2, y=window_size_y-50,color=(240,240,240,155), anchor_x='center',anchor_y='center',font_size=70)
+        
         
         self.song_player = songPlayer(self.music_folder,self.song_list[0],self.output_port)
         self.update_text()
         
         self.last_score = 0
-        self.last_score_counter = pyglet.text.Label(text="-", x=window_size_x/2, y=500,color=(100,100,100,255), anchor_x='center',anchor_y='center')
+        self.last_score_counter = pyglet.text.Label(text="-", x=600, y=50,color=(50,50,50,255), anchor_x='center',anchor_y='center')
     
     
     def fill_list(self, folder):
@@ -87,10 +96,16 @@ class MenuLogic:
         #Return current Song
         self.song_player.stop_play()
         result = os.path.join(self.music_folder,self.song_list[self.song_index])
-        print(result)
         return result
     
     def draw(self):
+        
+        #display background
+        self.background_image.draw()
+        
+        #display title
+        self.Title.draw()
+        
         #Display the Song title texts
         self.song_previous.draw()
         self.song_selected.draw()
