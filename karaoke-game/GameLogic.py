@@ -48,12 +48,15 @@ class GameLogic():
         pass
         
     def spawn_notes(self,song):
+        print('in spawn_notes')
         #Spawns notes for the given song.
         self.song = song
         def play():
+            print('in play()')
             #Plays the MIDI file and spawns notes accordingly.
             self.game_started = True
             for msg in MidiFile(self.song).play():
+                print(msg)
                 #check if force stop song.
                 if self.force_stop_song == True:
                     break
@@ -62,18 +65,27 @@ class GameLogic():
                     
                     #if midi note is of type note_off or has a velocity of zero it can not be interacted with and is invisable
                     is_silent = False 
-                    if msg.type == "note_off" or msg.velocity == 0:
-                        is_silent = True
+                    try:
+                        if msg.type == "note_off" or msg.velocity == 0:
+                            is_silent = True
+                    except:
+                        continue
                     #set note length
                     length = msg.time * self.speed
                     #set note y position according to pitch but not octave 
                     y_position = (msg.note %12) * self.step_size #-20
                     #add note
                     self.note_list.append(SingleNote(length,y_position,self.window_size_x,self.note_size_y,msg,is_silent))                   
+            print('end play()')
         #spawn the notes in a thread, so it dose not stop the rest of the program
-        self.song_thread = threading.Thread(target=play)
+        #play()
+        self.song_thread = threading.Thread(target=play, daemon=True)
+        print('before start thread')
         self.song_thread.start()
-    
+        print('after start thread')
+        #self.song_thread.join()
+        #print('after join thread')
+
     def check_if_game_finished(self):    
         #Checks if the game has finished.    
         if self.game_started ==True and not self.song_thread.is_alive() and len(self.note_list) == 0:

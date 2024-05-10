@@ -64,7 +64,7 @@ input_vis = inputVisualizer()
 def on_draw():
     window.clear()        
     # Read audio data from stream
-    data = stream.read(CHUNK_SIZE)
+    data = stream.read(CHUNK_SIZE, exception_on_overflow=False)
     # Convert audio data to numpy array
     direction = input_calc.update(data)
     #print(direction)

@@ -93,8 +93,11 @@ class MenuLogic:
     
     def start_game(self):
         #Return current Song
+        print('start game 1')
         self.song_player.stop_play()
+        print('start game 2')
         result = os.path.join(self.music_folder,self.song_list[self.song_index])
+        print('start game 3')
         return result
     
     def draw(self):

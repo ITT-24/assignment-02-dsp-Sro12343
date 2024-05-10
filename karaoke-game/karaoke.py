@@ -11,7 +11,7 @@ from freqencyCalculator import FreqCalculator
 
 # Set up audio stream
 # reduce chunk size and sampling rate for lower latency
-CHUNK_SIZE = 2048#600#1024  # Number of audio frames per buffer
+CHUNK_SIZE = 512 #600#1024  # Number of audio frames per buffer
 FORMAT = pyaudio.paInt16  # Audio format
 CHANNELS = 1  # Mono audio
 RATE = 44100  # Audio sampling rate (Hz)
@@ -85,16 +85,19 @@ def on_draw():
         game_inst.draw()
 
 def update(dt):
+    print('update()')
     #updating seperatly from on_draw to have access to deltatime
-    global game_state
+    global game_state, stream
     
     #check if game is running
     if game_state == 1:  
+        print('game state 1')
         # Read audio data from stream
-        data = stream.read(CHUNK_SIZE)
+        data = stream.read(CHUNK_SIZE, exception_on_overflow=False)
+        print('after stream read')
         # Convert audio data to numpy array
         frequency = f_calc.update(data)
-        #print(frequency)
+        print('freq', frequency)
         game_inst.update(frequency,dt)
         
         #Return to menu if game is finished
@@ -120,6 +123,7 @@ def on_key_press(symbol, modifiers):
             #get current selected track
             #give it to game_inst start.
             song = menu_inst.start_game()
+            print('after menu inst')
             game_inst.start(song)
             game_state = 1
             pass
@@ -136,4 +140,5 @@ def on_close():
 
         
 pyglet.clock.schedule_interval(update, 1/60.0)
+print('after schedule timer')
 pyglet.app.run()
